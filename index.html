@@ -182,6 +182,7 @@
 
 <div class="container">
   <div class="header-branding">
+    <img class="hospital-logo" src="https://img.magnific.com/premium-vector/there-are-two-different-types-electric-vehicles-with-charging-station_949067-449.jpg?w=1060" alt="Logo">
     <div class="header-titles">
       <h1>預約沙田醫院電動車充電服務</h1>
     </div>
@@ -198,6 +199,12 @@
       <li>沙田醫院電動車充電服務只供持有有效沙田醫院泊車證，並駕駛電動車之職員使用。</li>
       <li>職員使用充電服務前，必須事先於網上預約系統登記及預約。</li>
       <li>網上預約以先到先得方式處理；預約系統將開放未來14天之時段供職員預約。</li>
+      <li>所有預約均以收到確認電郵作實。</li>
+      <li>每部車輛每日只可充電一次；每次充電時間上限為4小時。</li>
+      <li>充電完畢，同事必須移除充電線並駛離充電站。</li>
+      <li>如職員未能按預約時間使用充電服務，應至少於預約時段開始前一小時於預約系統取消預約。</li>
+      <li>如職員於60天內累計兩次未有按預約時間到場使用充電服務，其使用沙田醫院電動車充電服務之資格，將由第二次缺席當日起暫停90天。</li>
+      <li>如需協助，請致電沙田醫院管事部 3919 7664。</li>
     </ol>
   </div>
 
@@ -225,7 +232,8 @@
       </div>
       <div class="form-group">
         <label>選擇充電車位：</label>
-        <select id="charger" onchange="updateSlots()">
+        <select id="charger" onchange="updateSlots()" required>
+          <option value="" disabled selected>-- 請選擇車位 --</option>
           <option value="26號車位">26號車位</option>
           <option value="27號車位">27號車位</option>
         </select>
@@ -260,8 +268,7 @@
 </div>
 
 <script>
-  // 重要：請替換為您完成部署後獲得的 Apps Script Web App 網址
-  const API_URL = "https://script.google.com/macros/s/YOUR_DEPLOYMENT_ID/exec";
+  const API_URL = "https://script.google.com/macros/s/YOUR_DEPLOYMENT_ID/exec"; // 請確保替換為實際的 Web App URL
 
   var bookedSlotsData = {};
   var selectedSlot = '';
@@ -306,7 +313,7 @@
     var days = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'];
     var today = new Date();
 
-    dateSelect.innerHTML = '';
+    dateSelect.innerHTML = '<option value="" disabled selected>-- 請選擇日期 --</option>';
     for (var i = 0; i < 14; i++) {
       var d = new Date(today);
       d.setDate(today.getDate() + i);
@@ -327,7 +334,6 @@
     fetchBookedSlots();
   }
 
-  // API 呼叫：以 GET 方式取得數據
   function fetchBookedSlots() {
     fetch(API_URL)
       .then(response => response.json())
@@ -346,6 +352,11 @@
     var grid = document.getElementById('slotGrid');
     grid.innerHTML = '';
     selectedSlot = '';
+
+    if (!selectedCharger || !selectedDate) {
+      grid.innerHTML = '<div class="no-slot-tip">請先選擇「充電車位」與「日期」。</div>';
+      return;
+    }
 
     var currentSlots = chargerSlotsMap[selectedCharger] || [];
     var availableCount = 0;
@@ -393,7 +404,6 @@
     }
   }
 
-  // API 呼叫：以 POST 方式提交預約
   function submitForm(e) {
     e.preventDefault();
     if (!selectedSlot) {
@@ -440,7 +450,6 @@
     });
   }
 
-  // API 呼叫：以 POST 方式取消預約
   function submitCancel(e) {
     e.preventDefault();
     var email = document.getElementById('cancelEmail').value;
