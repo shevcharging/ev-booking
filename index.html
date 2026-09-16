@@ -1,499 +1,431 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-HK">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>預約沙田醫院電動車充電服務</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>沙田醫院電動車充電服務預約系統</title>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap');
-
-    :root {
-      --primary-color: #0056b3;
-      --primary-hover: #003d82;
-      --bg-color: #f0f4f8;
-      --card-bg: #ffffff;
-      --text-color: #333333;
-      --border-color: #e0e6ed;
+    * {
+      box-sizing: border-box;
+      font-family: "Microsoft JhengHei", "微軟正黑體", sans-serif;
     }
-
-    * { box-sizing: border-box; }
-
     body {
-      font-family: 'Noto Sans TC', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      background-color: var(--bg-color);
+      background-color: #f4f7f6;
       margin: 0;
-      padding: 16px 12px;
-      color: var(--text-color);
+      padding: 20px;
+      color: #333;
     }
-
     .container {
-      max-width: 850px;
+      max-width: 600px;
       margin: 0 auto;
-      background: var(--card-bg);
-      padding: 28px 30px;
+      background: #ffffff;
+      padding: 25px;
       border-radius: 12px;
-      box-shadow: 0 4px 18px rgba(0, 0, 0, 0.06);
+      box-shadow: 0 4px 15px rgba(0,0,0,0.08);
     }
-
-    .header-branding {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 20px;
-      margin-bottom: 20px;
-      padding-bottom: 16px;
-      border-bottom: 2px solid var(--border-color);
-    }
-
-    .hospital-logo {
-      height: 120px;
-      width: auto;
-      object-fit: contain;
-    }
-
-    .header-titles h1 {
-      font-size: 32px;
-      color: var(--primary-color);
-      margin: 0;
-      font-weight: 700;
-    }
-
-    .tab-header {
-      display: flex;
-      background: #e9ecef;
-      border-radius: 8px;
-      padding: 4px;
+    h2 {
+      text-align: center;
+      color: #0056b3;
       margin-bottom: 20px;
     }
-
+    /* 頁籤切換 */
+    .tabs {
+      display: flex;
+      border-bottom: 2px solid #e0e0e0;
+      margin-bottom: 20px;
+    }
     .tab-btn {
       flex: 1;
-      padding: 12px 8px;
+      padding: 12px;
       text-align: center;
-      background: transparent;
-      cursor: pointer;
-      font-weight: 700;
+      background: none;
       border: none;
-      border-radius: 6px;
-      color: #555;
-      font-size: 20px;
+      font-size: 16px;
+      font-weight: bold;
+      color: #666;
+      cursor: pointer;
+      border-bottom: 3px solid transparent;
     }
-
     .tab-btn.active {
-      background: var(--card-bg);
-      color: var(--primary-color);
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      color: #0056b3;
+      border-bottom: 3px solid #0056b3;
     }
-
-    .tab-btn-cancel.active { color: #dc3545 !important; }
-
-    .notice {
-      background: #f0f7ff;
-      border-left: 4px solid var(--primary-color);
-      padding: 14px 16px;
-      border-radius: 0 8px 8px 0;
-      font-size: 14px;
-      line-height: 1.7;
-      margin-bottom: 20px;
+    .tab-content {
+      display: none;
     }
-
-    .notice strong { color: var(--primary-color); font-size: 15.5px; display: block; margin-bottom: 8px; }
-    .notice ol { margin: 0; padding-left: 20px; }
-
-    .form-group { margin-bottom: 18px; }
-
+    .tab-content.active {
+      display: block;
+    }
+    /* 表單元件 */
+    .form-group {
+      margin-bottom: 15px;
+    }
     label {
       display: block;
-      font-weight: 600;
       margin-bottom: 6px;
-      font-size: 14px;
+      font-weight: bold;
     }
-
     input, select {
       width: 100%;
-      padding: 12px 14px;
+      padding: 10px;
       border: 1px solid #ccc;
       border-radius: 6px;
       font-size: 15px;
     }
-
-    .slot-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-      gap: 10px;
-      margin-top: 8px;
+    input[readonly] {
+      background-color: #e9ecef;
     }
-
-    .slot-btn {
-      padding: 12px 8px;
-      border: 1.5px solid var(--primary-color);
-      background: #fff;
-      color: var(--primary-color);
-      border-radius: 6px;
-      cursor: pointer;
-      text-align: center;
-      font-weight: 600;
-      font-size: 13.5px;
-    }
-
-    .slot-btn.selected { background: var(--primary-color); color: #fff; }
-
-    .no-slot-tip {
-      grid-column: 1 / -1;
-      color: #dc3545;
-      text-align: center;
-      font-weight: 600;
-      padding: 12px;
-      background: #fff0f0;
-      border-radius: 6px;
-      font-size: 13.5px;
-    }
-
-    .submit-btn {
+    button.submit-btn {
       width: 100%;
-      padding: 14px;
-      background: #28a745;
-      color: #fff;
+      padding: 12px;
+      background-color: #0056b3;
+      color: white;
       border: none;
       border-radius: 6px;
       font-size: 16px;
-      font-weight: 700;
+      font-weight: bold;
       cursor: pointer;
+      margin-top: 10px;
     }
-
-    .cancel-btn-bg { background: #dc3545; }
-
-    #msg {
-      margin-top: 16px;
+    button.submit-btn:hover {
+      background-color: #004085;
+    }
+    button:disabled {
+      background-color: #ccc;
+      cursor: not-allowed;
+    }
+    /* 訊息提示 */
+    .message {
+      margin-top: 15px;
       padding: 12px;
       border-radius: 6px;
+      display: none;
+      font-weight: bold;
       text-align: center;
-      font-weight: 600;
+    }
+    .message.success {
+      background-color: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+    }
+    .message.error {
+      background-color: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+    }
+    .loading {
+      text-align: center;
+      color: #666;
+      font-style: italic;
+      margin-top: 10px;
       display: none;
     }
-
-    .success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
-    .error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
-    .tab-content { display: none; }
-    .tab-content.active { display: block; }
   </style>
 </head>
 <body>
 
 <div class="container">
-  <div class="header-branding">
-    <img class="hospital-logo" src="https://img.magnific.com/premium-vector/there-are-two-different-types-electric-vehicles-with-charging-station_949067-449.jpg?w=1060" alt="Logo">
-    <div class="header-titles">
-      <h1>預約沙田醫院電動車充電服務</h1>
-    </div>
-  </div>
-  
-  <div class="tab-header">
-    <button class="tab-btn active" id="tabBookBtn" onclick="switchTab('book')">預約充電位</button>
-    <button class="tab-btn tab-btn-cancel" id="tabCancelBtn" onclick="switchTab('cancel')">取消預約</button>
+  <h2>沙田醫院電動車充電預約</h2>
+
+  <!-- 分頁按鈕 -->
+  <div class="tabs">
+    <button class="tab-btn active" id="tab-book-btn" onclick="switchTab('book')">預約充電</button>
+    <button class="tab-btn" id="tab-cancel-btn" onclick="switchTab('cancel')">取消預約</button>
   </div>
 
-  <div class="notice">
-    <strong>【使用守則與注意事項】</strong>
-    <ol>
-      <li>沙田醫院電動車充電服務只供持有有效沙田醫院泊車證，並駕駛電動車之職員使用。</li>
-      <li>職員使用充電服務前，必須事先於網上預約系統登記及預約。</li>
-      <li>網上預約以先到先得方式處理；預約系統將開放未來14天之時段供職員預約。</li>
-      <li>所有預約均以收到確認電郵作實。</li>
-      <li>每部車輛每日只可充電一次；每次充電時間上限為4小時。</li>
-      <li>充電完畢，同事必須移除充電線並駛離充電站。</li>
-      <li>如職員未能按預約時間使用充電服務，應至少於預約時段開始前一小時於預約系統取消預約。</li>
-      <li>如職員於60天內累計兩次未有按預約時間到場使用充電服務，其使用沙田醫院電動車充電服務之資格，將由第二次缺席當日起暫停90天。</li>
-      <li>如需協助，請致電沙田醫院管事部 3919 7664。</li>
-    </ol>
-  </div>
+  <!-- 1. 預約表單頁籤 -->
+  <div id="tab-book" class="tab-content active">
+    <form id="bookingForm">
+      <div class="form-group">
+        <label for="date">預約日期：</label>
+        <input type="date" id="date" required onchange="loadBookedSlots()">
+      </div>
 
-  <div id="bookTab" class="tab-content active">
-    <form id="bookingForm" onsubmit="submitForm(event)">
       <div class="form-group">
-        <label>職員姓名：</label>
-        <input type="text" id="name" required>
-      </div>
-      <div class="form-group">
-        <label>331 ID：</label>
-        <input type="text" id="empId" required placeholder="例：ABC123">
-      </div>
-      <div class="form-group">
-        <label>聯絡電話：</label>
-        <input type="tel" id="phone" required placeholder="例：91234567">
-      </div>
-      <div class="form-group">
-        <label>電郵地址：</label>
-        <input type="email" id="email" required>
-      </div>
-      <div class="form-group">
-        <label>車牌號碼：</label>
-        <input type="text" id="carNumber" required placeholder="例：AB 1234">
-      </div>
-      <div class="form-group">
-        <label>選擇充電車位：</label>
-        <select id="charger" onchange="updateSlots()" required>
-          <option value="" disabled selected>-- 請選擇車位 --</option>
+        <label for="charger">選擇充電位：</label>
+        <select id="charger" required onchange="updateTimeSlots()">
+          <option value="">-- 請選擇充電位 --</option>
+          <option value="25號車位">25號車位</option>
           <option value="26號車位">26號車位</option>
-          <option value="27號車位">27號車位</option>
         </select>
       </div>
+
       <div class="form-group">
-        <label>選擇日期：</label>
-        <select id="dateSelect" onchange="updateSlots()" required></select>
+        <label for="slot">預約時段：</label>
+        <select id="slot" required>
+          <option value="">-- 請先選擇車位與日期 --</option>
+        </select>
       </div>
+
       <div class="form-group">
-        <label>可預約之充電時段：</label>
-        <div id="slotGrid" class="slot-grid"></div>
+        <label for="name">職員姓名：</label>
+        <input type="text" id="name" placeholder="例：張三" required>
       </div>
-      <button type="submit" class="submit-btn" id="submitBtn">確認預約</button>
+
+      <div class="form-group">
+        <label for="empId">331 ID / 職員編號：</label>
+        <input type="text" id="empId" placeholder="例：123456" required>
+      </div>
+
+      <div class="form-group">
+        <label for="phone">聯絡電話：</label>
+        <input type="tel" id="phone" placeholder="例：91234567" required>
+      </div>
+
+      <div class="form-group">
+        <label for="email">電郵地址：</label>
+        <input type="email" id="email" placeholder="例：example@ha.org.hk" required>
+      </div>
+
+      <div class="form-group">
+        <label for="carNumber">登記車牌：</label>
+        <input type="text" id="carNumber" placeholder="例：AB1234" required>
+      </div>
+
+      <button type="submit" class="submit-btn" id="bookSubmitBtn">提交預約</button>
     </form>
   </div>
 
-  <div id="cancelTab" class="tab-content">
-    <form id="cancelForm" onsubmit="submitCancel(event)">
+  <!-- 2. 取消預約頁籤 -->
+  <div id="tab-cancel" class="tab-content">
+    <form id="cancelForm">
       <div class="form-group">
-        <label>預約時填寫的電郵地址：</label>
-        <input type="email" id="cancelEmail" required>
+        <label for="cancelEmail">登記電郵地址：</label>
+        <input type="email" id="cancelEmail" placeholder="請輸入預約時填寫的電郵" required>
       </div>
+
       <div class="form-group">
-        <label>預約編號 (Booking ID)：</label>
-        <input type="text" id="cancelBookingId" required placeholder="例：EV-20260914-1234">
+        <label for="cancelId">預約編號：</label>
+        <input type="text" id="cancelId" placeholder="例如：EV-20260916-1234" required>
       </div>
-      <button type="submit" class="submit-btn cancel-btn-bg" id="cancelSubmitBtn">確認取消預約</button>
+
+      <button type="submit" class="submit-btn" id="cancelSubmitBtn" style="background-color: #dc3545;">確認取消預約</button>
     </form>
   </div>
 
-  <div id="msg"></div>
+  <!-- 狀態提示區塊 -->
+  <div class="loading" id="loadingMsg">資料處理中，請稍候...</div>
+  <div class="message" id="responseMsg"></div>
 </div>
 
 <script>
-  const API_URL = "https://script.google.com/macros/s/AKfycbyrLgDXzthXiPb38ZPLPL1uEDj9rh4v7DV4x41I1hKqeK4x13I0a-xk-OuxGDv8bk_v/exec"; // 請確保替換為實際的 Web App URL
+  // 請確保替換為您發佈的 Google Apps Script 網路應用程式 URL
+  const GAS_URL = "https://script.google.com/macros/s/AKfycbz_YOUR_SCRIPT_ID_HERE/exec";
 
-  var bookedSlotsData = {};
-  var selectedSlot = '';
-
-  var chargerSlotsMap = {
-    '26號車位': [
-      '06:30 - 10:30',
-      '11:00 - 15:00',
-      '15:30 - 19:30',
-      '20:00 - 00:00',
-      '00:00 - 04:00'
+  // 定義時段資料（26號車位第一時段已更新為 00:30 – 04:30）
+  const TIME_SLOTS = {
+    "25號車位": [
+      "00:00 – 04:00",
+      "04:00 – 08:00",
+      "08:00 – 12:00",
+      "12:00 – 16:00",
+      "16:00 – 20:00",
+      "20:00 – 24:00"
     ],
-    '27號車位': [
-      '08:00 - 12:00',
-      '12:30 - 16:30',
-      '17:00 - 21:00',
-      '21:30 - 01:30',
-      '02:00 - 06:00'
+    "26號車位": [
+      "00:30 – 04:30",
+      "04:30 – 08:30",
+      "08:30 – 12:30",
+      "12:30 – 16:30",
+      "16:30 – 20:30",
+      "20:30 – 00:30"
     ]
   };
 
-  function init() {
-    initCalendar();
-  }
+  let occupiedSlots = {}; // 儲存已被預約的時段
 
-  function switchTab(tab) {
+  // 頁面載入完成後的初始化
+  window.addEventListener('DOMContentLoaded', () => {
+    // 設定預約日期預設為今天
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('date').value = today;
+
+    // 解析 URL 參數（處理電郵點擊取消連結）
+    checkUrlParams();
+
+    // 載入已被預約的時段資料
+    loadBookedSlots();
+  });
+
+  // 切換頁籤
+  function switchTab(tabName) {
     document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
     document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
-    
-    if (tab === 'book') {
-      document.getElementById('tabBookBtn').classList.add('active');
-      document.getElementById('bookTab').classList.add('active');
-    } else {
-      document.getElementById('tabCancelBtn').classList.add('active');
-      document.getElementById('cancelTab').classList.add('active');
-    }
-    document.getElementById('msg').style.display = 'none';
+
+    document.getElementById(`tab-${tabName}-btn`).classList.add('active');
+    document.getElementById(`tab-${tabName}`).classList.add('active');
+    hideMessage();
   }
 
-  function initCalendar() {
-    var dateSelect = document.getElementById('dateSelect');
-    var days = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'];
-    var today = new Date();
+  // 自動檢查 URL 參數（例如: ?action=cancel&email=xxx&id=xxx）
+  function checkUrlParams() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const action = urlParams.get('action');
+    const email = urlParams.get('email');
+    const bookingId = urlParams.get('id');
 
-    dateSelect.innerHTML = '<option value="" disabled selected>-- 請選擇日期 --</option>';
-    for (var i = 0; i < 14; i++) {
-      var d = new Date(today);
-      d.setDate(today.getDate() + i);
-
-      var year = d.getFullYear();
-      var month = String(d.getMonth() + 1).padStart(2, '0');
-      var date = String(d.getDate()).padStart(2, '0');
-      var dayName = days[d.getDay()];
-
-      var dateValue = year + '-' + month + '-' + date;
-      var dateText = year + '年' + month + '月' + date + '日 (' + dayName + ')';
-
-      var opt = document.createElement('option');
-      opt.value = dateValue;
-      opt.textContent = dateText;
-      dateSelect.appendChild(opt);
+    if (action === 'cancel') {
+      switchTab('cancel');
+      if (email) {
+        document.getElementById('cancelEmail').value = decodeURIComponent(email);
+      }
+      if (bookingId) {
+        document.getElementById('cancelId').value = decodeURIComponent(bookingId);
+      }
     }
-    fetchBookedSlots();
   }
 
-  function fetchBookedSlots() {
-    fetch(API_URL)
-      .then(response => response.json())
+  // 從後端讀取已預約時段
+  function loadBookedSlots() {
+    showLoading(true);
+    fetch(GAS_URL)
+      .then(res => res.json())
       .then(data => {
-        bookedSlotsData = data;
-        updateSlots();
+        occupiedSlots = data;
+        updateTimeSlots();
+        showLoading(false);
       })
       .catch(err => {
-        console.error("讀取預約資料失敗:", err);
+        console.error("無法取得預約資料:", err);
+        showLoading(false);
       });
   }
 
-  function updateSlots() {
-    var selectedDate = document.getElementById('dateSelect').value;
-    var selectedCharger = document.getElementById('charger').value;
-    var grid = document.getElementById('slotGrid');
-    grid.innerHTML = '';
-    selectedSlot = '';
+  // 更新可選擇的時段選單（自動遮蔽已預約時段）
+  function updateTimeSlots() {
+    const date = document.getElementById('date').value;
+    const charger = document.getElementById('charger').value;
+    const slotSelect = document.getElementById('slot');
 
-    if (!selectedCharger || !selectedDate) {
-      grid.innerHTML = '<div class="no-slot-tip">請先選擇「充電車位」與「日期」。</div>';
-      return;
-    }
+    slotSelect.innerHTML = '<option value="">-- 請選擇時段 --</option>';
 
-    var currentSlots = chargerSlotsMap[selectedCharger] || [];
-    var availableCount = 0;
-    var now = new Date();
+    if (!date || !charger || !TIME_SLOTS[charger]) return;
 
-    currentSlots.forEach(function(slot) {
-      var key = selectedDate + '_' + selectedCharger + '_' + slot;
-      var isBooked = bookedSlotsData[key];
+    const slots = TIME_SLOTS[charger];
+    slots.forEach(slot => {
+      const key = `${date}_${charger}_${slot}`;
+      const option = document.createElement('option');
+      option.value = slot;
 
-      var times = slot.split(' - ');
-      var startTimes = times[0].split(':');
-      var endTimes = times[1].split(':');
-      
-      var startHour = parseInt(startTimes[0], 10);
-      var startMin = parseInt(startTimes[1], 10);
-      var endHour = parseInt(endTimes[0], 10);
-      var endMin = parseInt(endTimes[1], 10);
-      
-      var slotEndDate = new Date(selectedDate);
-      if (endHour < startHour || (endHour === startHour && endMin < startMin)) {
-        slotEndDate.setDate(slotEndDate.getDate() + 1);
+      if (occupiedSlots[key]) {
+        option.textContent = `${slot} (已被預約)`;
+        option.disabled = true;
+      } else {
+        option.textContent = slot;
       }
-      slotEndDate.setHours(endHour, endMin, 0, 0);
-
-      var isPast = now > slotEndDate;
-
-      if (!isBooked && !isPast) {
-        availableCount++;
-        var btn = document.createElement('div');
-        btn.className = 'slot-btn';
-        btn.textContent = slot;
-
-        btn.onclick = function() {
-          var current = document.querySelector('.slot-btn.selected');
-          if (current) current.classList.remove('selected');
-          btn.classList.add('selected');
-          selectedSlot = slot;
-        };
-        grid.appendChild(btn);
-      }
+      slotSelect.appendChild(option);
     });
-
-    if (availableCount === 0) {
-      grid.innerHTML = '<div class="no-slot-tip">⚠️ 該車位在此日期無可預約時段（時段已被預約或已過期）。</div>';
-    }
   }
 
-  function submitForm(e) {
+  // 處理「提交預約」
+  document.getElementById('bookingForm').addEventListener('submit', function(e) {
     e.preventDefault();
-    if (!selectedSlot) {
-      alert('請選擇充電時間段！');
+    
+    const formData = {
+      date: document.getElementById('date').value,
+      charger: document.getElementById('charger').value,
+      slot: document.getElementById('slot').value,
+      name: document.getElementById('name').value.trim(),
+      empId: document.getElementById('empId').value.trim(),
+      phone: document.getElementById('phone').value.trim(),
+      email: document.getElementById('email').value.trim(),
+      carNumber: document.getElementById('carNumber').value.trim().toUpperCase()
+    };
+
+    if (!formData.slot) {
+      showMessage("請選擇有效的預約時段。", "error");
       return;
     }
 
-    var submitBtn = document.getElementById('submitBtn');
-    submitBtn.disabled = true;
-    submitBtn.textContent = '處理中...';
+    showLoading(true);
+    setButtonDisabled('bookSubmitBtn', true);
 
-    var payload = {
-      action: "book",
-      data: {
-        name: document.getElementById('name').value,
-        empId: document.getElementById('empId').value,
-        phone: document.getElementById('phone').value,
-        email: document.getElementById('email').value,
-        carNumber: document.getElementById('carNumber').value,
-        charger: document.getElementById('charger').value,
-        date: document.getElementById('dateSelect').value,
-        slot: selectedSlot
-      }
-    };
-
-    fetch(API_URL, {
+    fetch(GAS_URL, {
       method: "POST",
-      body: JSON.stringify(payload)
+      headers: { "Content-Type": "text/plain;charset=utf-8" },
+      body: JSON.stringify({
+        action: "book",
+        data: formData
+      })
     })
     .then(res => res.json())
     .then(res => {
-      showMsg(res.success, res.message);
+      showLoading(false);
+      setButtonDisabled('bookSubmitBtn', false);
       if (res.success) {
+        showMessage(res.message, "success");
         document.getElementById('bookingForm').reset();
-        fetchBookedSlots();
+        // 恢復日期為今天並刷新時段
+        document.getElementById('date').value = new Date().toISOString().split('T')[0];
+        loadBookedSlots();
+      } else {
+        showMessage(res.message, "error");
       }
-      submitBtn.disabled = false;
-      submitBtn.textContent = '確認預約';
     })
     .catch(err => {
-      showMsg(false, "網路連線錯誤，請重試。");
-      submitBtn.disabled = false;
-      submitBtn.textContent = '確認預約';
+      showLoading(false);
+      setButtonDisabled('bookSubmitBtn', false);
+      showMessage("系統連線失敗，請稍後再試。", "error");
     });
-  }
+  });
 
-  function submitCancel(e) {
+  // 處理「取消預約」
+  document.getElementById('cancelForm').addEventListener('submit', function(e) {
     e.preventDefault();
-    var email = document.getElementById('cancelEmail').value;
-    var bookingId = document.getElementById('cancelBookingId').value;
-    var cancelBtn = document.getElementById('cancelSubmitBtn');
 
-    cancelBtn.disabled = true;
-    cancelBtn.textContent = '取消中...';
+    const email = document.getElementById('cancelEmail').value.trim();
+    const bookingId = document.getElementById('cancelId').value.trim();
 
-    var payload = {
-      action: "cancel",
-      email: email,
-      bookingId: bookingId
-    };
+    showLoading(true);
+    setButtonDisabled('cancelSubmitBtn', true);
 
-    fetch(API_URL, {
+    fetch(GAS_URL, {
       method: "POST",
-      body: JSON.stringify(payload)
+      headers: { "Content-Type": "text/plain;charset=utf-8" },
+      body: JSON.stringify({
+        action: "cancel",
+        email: email,
+        bookingId: bookingId
+      })
     })
     .then(res => res.json())
     .then(res => {
-      showMsg(res.success, res.message);
+      showLoading(false);
+      setButtonDisabled('cancelSubmitBtn', false);
       if (res.success) {
+        showMessage(res.message, "success");
         document.getElementById('cancelForm').reset();
-        fetchBookedSlots();
+        loadBookedSlots(); // 取消成功後更新時段開放狀態
+      } else {
+        showMessage(res.message, "error");
       }
-      cancelBtn.disabled = false;
-      cancelBtn.textContent = '確認取消預約';
     })
     .catch(err => {
-      showMsg(false, "網路連線錯誤，請重試。");
-      cancelBtn.disabled = false;
-      cancelBtn.textContent = '確認取消預約';
+      showLoading(false);
+      setButtonDisabled('cancelSubmitBtn', false);
+      showMessage("系統連線失敗，請稍後再試。", "error");
     });
+  });
+
+  // 畫面控制輔助函式
+  function showLoading(show) {
+    document.getElementById('loadingMsg').style.display = show ? 'block' : 'none';
   }
 
-  function showMsg(isSuccess, text) {
-    var msgDiv = document.getElementById('msg');
-    msgDiv.style.display = 'block';
-    msgDiv.className = isSuccess ? 'success' : 'error';
-    msgDiv.textContent = text;
+  function showMessage(msg, type) {
+    const msgBox = document.getElementById('responseMsg');
+    msgBox.textContent = msg;
+    msgBox.className = `message ${type}`;
+    msgBox.style.display = 'block';
   }
 
-  window.onload = init;
+  function hideMessage() {
+    document.getElementById('responseMsg').style.display = 'none';
+  }
+
+  function setButtonDisabled(btnId, disabled) {
+    document.getElementById(btnId).disabled = disabled;
+  }
 </script>
 
 </body>
