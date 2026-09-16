@@ -273,13 +273,15 @@
   var bookedSlotsData = {};
   var selectedSlot = '';
 
+  // 26號車位時間段已調整為由 00:30 - 04:30 開始
   var chargerSlotsMap = {
     '26號車位': [
-      '06:30 - 10:30',
-      '11:00 - 15:00',
-      '15:30 - 19:30',
-      '20:00 - 00:00',
-      '00:00 - 04:00'
+      '00:30 - 04:30',
+      '04:30 - 08:30',
+      '08:30 - 12:30',
+      '12:30 - 16:30',
+      '16:30 - 20:30',
+      '20:30 - 00:30'
     ],
     '27號車位': [
       '08:00 - 12:00',
@@ -292,6 +294,7 @@
 
   function init() {
     initCalendar();
+    checkUrlParams();
   }
 
   function switchTab(tab) {
@@ -306,6 +309,20 @@
       document.getElementById('cancelTab').classList.add('active');
     }
     document.getElementById('msg').style.display = 'none';
+  }
+
+  // 讀取網址參數，若有取消參數自動填入並切換頁籤
+  function checkUrlParams() {
+    var urlParams = new URLSearchParams(window.location.search);
+    var action = urlParams.get('action');
+    var email = urlParams.get('email');
+    var bookingId = urlParams.get('id');
+
+    if (action === 'cancel') {
+      switchTab('cancel');
+      if (email) document.getElementById('cancelEmail').value = decodeURIComponent(email);
+      if (bookingId) document.getElementById('cancelBookingId').value = decodeURIComponent(bookingId);
+    }
   }
 
   function initCalendar() {
