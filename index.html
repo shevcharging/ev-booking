@@ -268,12 +268,12 @@
 </div>
 
 <script>
-  const API_URL = "https://script.google.com/macros/s/YOUR_DEPLOYMENT_ID/exec"; // 請確保替換為實際的 Web App URL
+  // 已帶入你提供之 Apps Script 部署 URL
+  const API_URL = "https://script.google.com/macros/s/AKfycbyrLgDXzthXiPb38ZPLPL1uEDj9rh4v7DV4x41I1hKqeK4x13I0a-xk-OuxGDv8bk_v/exec";
 
   var bookedSlotsData = {};
   var selectedSlot = '';
 
-  // 26號車位時間段已調整為由 00:30 - 04:30 開始
   var chargerSlotsMap = {
     '26號車位': [
       '00:30 - 04:30',
@@ -311,7 +311,6 @@
     document.getElementById('msg').style.display = 'none';
   }
 
-  // 讀取網址參數，若有取消參數自動填入並切換頁籤
   function checkUrlParams() {
     var urlParams = new URLSearchParams(window.location.search);
     var action = urlParams.get('action');
@@ -448,6 +447,7 @@
 
     fetch(API_URL, {
       method: "POST",
+      headers: { "Content-Type": "text/plain;charset=utf-8" },
       body: JSON.stringify(payload)
     })
     .then(res => res.json())
@@ -484,6 +484,7 @@
 
     fetch(API_URL, {
       method: "POST",
+      headers: { "Content-Type": "text/plain;charset=utf-8" },
       body: JSON.stringify(payload)
     })
     .then(res => res.json())
