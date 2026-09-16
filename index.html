@@ -28,7 +28,6 @@
       color: #0056b3;
       margin-bottom: 20px;
     }
-    /* 頁籤切換 */
     .tabs {
       display: flex;
       border-bottom: 2px solid #e0e0e0;
@@ -56,7 +55,6 @@
     .tab-content.active {
       display: block;
     }
-    /* 表單元件 */
     .form-group {
       margin-bottom: 15px;
     }
@@ -71,9 +69,6 @@
       border: 1px solid #ccc;
       border-radius: 6px;
       font-size: 15px;
-    }
-    input[readonly] {
-      background-color: #e9ecef;
     }
     button.submit-btn {
       width: 100%;
@@ -94,7 +89,6 @@
       background-color: #ccc;
       cursor: not-allowed;
     }
-    /* 訊息提示 */
     .message {
       margin-top: 15px;
       padding: 12px;
@@ -127,13 +121,12 @@
 <div class="container">
   <h2>沙田醫院電動車充電預約</h2>
 
-  <!-- 分頁按鈕 -->
   <div class="tabs">
     <button class="tab-btn active" id="tab-book-btn" onclick="switchTab('book')">預約充電</button>
     <button class="tab-btn" id="tab-cancel-btn" onclick="switchTab('cancel')">取消預約</button>
   </div>
 
-  <!-- 1. 預約表單頁籤 -->
+  <!-- 預約表單 -->
   <div id="tab-book" class="tab-content active">
     <form id="bookingForm">
       <div class="form-group">
@@ -186,7 +179,7 @@
     </form>
   </div>
 
-  <!-- 2. 取消預約頁籤 -->
+  <!-- 取消預約表單 -->
   <div id="tab-cancel" class="tab-content">
     <form id="cancelForm">
       <div class="form-group">
@@ -203,16 +196,15 @@
     </form>
   </div>
 
-  <!-- 狀態提示區塊 -->
   <div class="loading" id="loadingMsg">資料處理中，請稍候...</div>
   <div class="message" id="responseMsg"></div>
 </div>
 
 <script>
-  // 請確保替換為您發佈的 Google Apps Script 網路應用程式 URL
-  const GAS_URL = "https://script.google.com/macros/s/AKfycbz_YOUR_SCRIPT_ID_HERE/exec";
+  // 已帶入您提供之 Apps Script 部署 URL
+  const GAS_URL = "https://script.google.com/macros/s/AKfycbyrLgDXzthXiPb38ZPLPL1uEDj9rh4v7DV4x41I1hKqeK4x13I0a-xk-OuxGDv8bk_v/exec";
 
-  // 定義時段資料（26號車位第一時段已更新為 00:30 – 04:30）
+  // 時段設定（26號車位時段已更新）
   const TIME_SLOTS = {
     "25號車位": [
       "00:00 – 04:00",
@@ -232,22 +224,14 @@
     ]
   };
 
-  let occupiedSlots = {}; // 儲存已被預約的時段
+  let occupiedSlots = {};
 
-  // 頁面載入完成後的初始化
   window.addEventListener('DOMContentLoaded', () => {
-    // 設定預約日期預設為今天
-    const today = new Date().toISOString().split('T')[0];
-    document.getElementById('date').value = today;
-
-    // 解析 URL 參數（處理電郵點擊取消連結）
+    document.getElementById('date').value = new Date().toISOString().split('T')[0];
     checkUrlParams();
-
-    // 載入已被預約的時段資料
     loadBookedSlots();
   });
 
-  // 切換頁籤
   function switchTab(tabName) {
     document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
     document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
@@ -257,7 +241,7 @@
     hideMessage();
   }
 
-  // 自動檢查 URL 參數（例如: ?action=cancel&email=xxx&id=xxx）
+  // 檢查 URL 參數（從電郵點擊取消時自動帶入資料並切換頁籤）
   function checkUrlParams() {
     const urlParams = new URLSearchParams(window.location.search);
     const action = urlParams.get('action');
@@ -266,16 +250,11 @@
 
     if (action === 'cancel') {
       switchTab('cancel');
-      if (email) {
-        document.getElementById('cancelEmail').value = decodeURIComponent(email);
-      }
-      if (bookingId) {
-        document.getElementById('cancelId').value = decodeURIComponent(bookingId);
-      }
+      if (email) document.getElementById('cancelEmail').value = decodeURIComponent(email);
+      if (bookingId) document.getElementById('cancelId').value = decodeURIComponent(bookingId);
     }
   }
 
-  // 從後端讀取已預約時段
   function loadBookedSlots() {
     showLoading(true);
     fetch(GAS_URL)
@@ -291,18 +270,15 @@
       });
   }
 
-  // 更新可選擇的時段選單（自動遮蔽已預約時段）
   function updateTimeSlots() {
     const date = document.getElementById('date').value;
     const charger = document.getElementById('charger').value;
     const slotSelect = document.getElementById('slot');
 
     slotSelect.innerHTML = '<option value="">-- 請選擇時段 --</option>';
-
     if (!date || !charger || !TIME_SLOTS[charger]) return;
 
-    const slots = TIME_SLOTS[charger];
-    slots.forEach(slot => {
+    TIME_SLOTS[charger].forEach(slot => {
       const key = `${date}_${charger}_${slot}`;
       const option = document.createElement('option');
       option.value = slot;
@@ -317,10 +293,8 @@
     });
   }
 
-  // 處理「提交預約」
   document.getElementById('bookingForm').addEventListener('submit', function(e) {
     e.preventDefault();
-    
     const formData = {
       date: document.getElementById('date').value,
       charger: document.getElementById('charger').value,
@@ -343,10 +317,7 @@
     fetch(GAS_URL, {
       method: "POST",
       headers: { "Content-Type": "text/plain;charset=utf-8" },
-      body: JSON.stringify({
-        action: "book",
-        data: formData
-      })
+      body: JSON.stringify({ action: "book", data: formData })
     })
     .then(res => res.json())
     .then(res => {
@@ -355,27 +326,21 @@
       if (res.success) {
         showMessage(res.message, "success");
         document.getElementById('bookingForm').reset();
-        // 恢復日期為今天並刷新時段
         document.getElementById('date').value = new Date().toISOString().split('T')[0];
         loadBookedSlots();
       } else {
         showMessage(res.message, "error");
       }
     })
-    .catch(err => {
+    .catch(() => {
       showLoading(false);
       setButtonDisabled('bookSubmitBtn', false);
       showMessage("系統連線失敗，請稍後再試。", "error");
     });
   });
 
-  // 處理「取消預約」
   document.getElementById('cancelForm').addEventListener('submit', function(e) {
     e.preventDefault();
-
-    const email = document.getElementById('cancelEmail').value.trim();
-    const bookingId = document.getElementById('cancelId').value.trim();
-
     showLoading(true);
     setButtonDisabled('cancelSubmitBtn', true);
 
@@ -384,8 +349,8 @@
       headers: { "Content-Type": "text/plain;charset=utf-8" },
       body: JSON.stringify({
         action: "cancel",
-        email: email,
-        bookingId: bookingId
+        email: document.getElementById('cancelEmail').value.trim(),
+        bookingId: document.getElementById('cancelId').value.trim()
       })
     })
     .then(res => res.json())
@@ -395,19 +360,18 @@
       if (res.success) {
         showMessage(res.message, "success");
         document.getElementById('cancelForm').reset();
-        loadBookedSlots(); // 取消成功後更新時段開放狀態
+        loadBookedSlots();
       } else {
         showMessage(res.message, "error");
       }
     })
-    .catch(err => {
+    .catch(() => {
       showLoading(false);
       setButtonDisabled('cancelSubmitBtn', false);
       showMessage("系統連線失敗，請稍後再試。", "error");
     });
   });
 
-  // 畫面控制輔助函式
   function showLoading(show) {
     document.getElementById('loadingMsg').style.display = show ? 'block' : 'none';
   }
