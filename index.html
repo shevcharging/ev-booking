@@ -223,7 +223,7 @@
         <input type="tel" id="phone" required placeholder="例：91234567">
       </div>
       <div class="form-group">
-        <label>電郵地址：</label>
+        <label>醫院或私人電郵地址 (用作接收確認及取消預約)：</label>
         <input type="email" id="email" required>
       </div>
       <div class="form-group">
@@ -253,7 +253,7 @@
   <div id="cancelTab" class="tab-content">
     <form id="cancelForm" onsubmit="submitCancel(event)">
       <div class="form-group">
-        <label>預約時填寫的電郵地址：</label>
+        <label>醫院或私人電郵地址 (用作接收確認及取消預約)：</label>
         <input type="email" id="cancelEmail" required>
       </div>
       <div class="form-group">
@@ -275,6 +275,7 @@
 
   var chargerSlotsMap = {
     '26號車位': [
+      '02:00 - 06:00',
       '00:30 - 04:30',
       '04:30 - 08:30',
       '08:30 - 12:30',
@@ -419,7 +420,6 @@
     }
   }
 
-  // 採用 URLSearchParams + fetch 方式解決跨網域跨域 (CORS) 阻擋
   function submitForm(e) {
     e.preventDefault();
     if (!selectedSlot) {
@@ -462,7 +462,6 @@
       submitBtn.textContent = '確認預約';
     })
     .catch(err => {
-      // 備用方案：若 CORS 被瀏覽器阻擋，使用安全數據提交
       sendFallbackData(payload, function() {
         showMsg(true, "請求已成功送出！請檢查電郵獲取預約結果。");
         document.getElementById('bookingForm').reset();
@@ -515,7 +514,6 @@
     });
   }
 
-  // 強大避開 CORS 錯誤的相容提交工具
   function sendFallbackData(payload, callback) {
     var iframe = document.createElement('iframe');
     iframe.name = 'hidden_iframe_' + Date.now();
