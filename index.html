@@ -456,7 +456,7 @@
           fetchBookedSlots();
         }
       } else {
-        showMsg('success', '預約請求已成功送出！請查收電郵確認結果。');
+        showMsg('success', '預約成功！預約編號為：" + bookingId + "，確認信已發送至您的電郵。');
         document.getElementById('bookingForm').reset();
         fetchBookedSlots();
       }
@@ -490,7 +490,7 @@
           fetchBookedSlots();
         }
       } else {
-        showMsg('success', '取消要求已成功送出！請重新整理頁面確認。');
+        showMsg('success', '預約已取消！該時段已重新開放。');
         document.getElementById('cancelForm').reset();
         fetchBookedSlots();
       }
