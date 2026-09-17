@@ -174,6 +174,7 @@
 
     .success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
     .error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+    .info { background: #e2e3e5; color: #383d41; border: 1px solid #d6d8db; }
     .tab-content { display: none; }
     .tab-content.active { display: block; }
   </style>
@@ -275,11 +276,11 @@
 
   var chargerSlotsMap = {
     '26號車位': [
+      '00:30 - 04:30',
       '06:30 - 10:30',
       '11:00 - 15:00',
       '15:30 - 19:30',
-      '20:00 - 00:00',
-      '00:30 - 04:30'
+      '20:00 - 00:00'
     ],
     '27號車位': [
       '02:00 - 06:00',
@@ -428,6 +429,7 @@
     var submitBtn = document.getElementById('submitBtn');
     submitBtn.disabled = true;
     submitBtn.textContent = '處理中...';
+    showMsg('info', '正在處理預約請求，請稍候...');
 
     var payload = {
       action: "book",
@@ -443,30 +445,21 @@
       }
     };
 
-    fetch(API_URL, {
-      method: "POST",
-      mode: "cors",
-      headers: { "Content-Type": "text/plain;charset=utf-8" },
-      body: JSON.stringify(payload)
-    })
-    .then(res => res.json())
-    .then(res => {
-      showMsg(res.success, res.message);
-      if (res.success) {
+    sendRequest(payload, function(res) {
+      submitBtn.disabled = false;
+      submitBtn.textContent = '確認預約';
+      
+      if (res && res.message) {
+        showMsg(res.success ? 'success' : 'error', res.message);
+        if (res.success) {
+          document.getElementById('bookingForm').reset();
+          fetchBookedSlots();
+        }
+      } else {
+        showMsg('success', '預約請求已成功送出！請查收電郵確認結果。');
         document.getElementById('bookingForm').reset();
         fetchBookedSlots();
       }
-      submitBtn.disabled = false;
-      submitBtn.textContent = '確認預約';
-    })
-    .catch(err => {
-      sendFallbackData(payload, function() {
-        showMsg(true, "請求已成功送出！請檢查電郵獲取預約結果。");
-        document.getElementById('bookingForm').reset();
-        fetchBookedSlots();
-        submitBtn.disabled = false;
-        submitBtn.textContent = '確認預約';
-      });
     });
   }
 
@@ -478,6 +471,7 @@
 
     cancelBtn.disabled = true;
     cancelBtn.textContent = '取消中...';
+    showMsg('info', '正在處理取消請求，請稍候...');
 
     var payload = {
       action: "cancel",
@@ -485,30 +479,57 @@
       bookingId: bookingId
     };
 
-    fetch(API_URL, {
-      method: "POST",
-      mode: "cors",
-      headers: { "Content-Type": "text/plain;charset=utf-8" },
-      body: JSON.stringify(payload)
-    })
-    .then(res => res.json())
-    .then(res => {
-      showMsg(res.success, res.message);
-      if (res.success) {
+    sendRequest(payload, function(res) {
+      cancelBtn.disabled = false;
+      cancelBtn.textContent = '確認取消預約';
+
+      if (res && res.message) {
+        showMsg(res.success ? 'success' : 'error', res.message);
+        if (res.success) {
+          document.getElementById('cancelForm').reset();
+          fetchBookedSlots();
+        }
+      } else {
+        showMsg('success', '取消要求已成功送出！請重新整理頁面確認。');
         document.getElementById('cancelForm').reset();
         fetchBookedSlots();
       }
-      cancelBtn.disabled = false;
-      cancelBtn.textContent = '確認取消預約';
+    });
+  }
+
+  // 帶 5 秒 Timeout 的數據發送核心函式
+  function sendRequest(payload, callback) {
+    var controller = new AbortController();
+    var isHandled = false;
+
+    var timeoutId = setTimeout(function() {
+      if (!isHandled) {
+        isHandled = true;
+        controller.abort();
+        sendFallbackData(payload, callback);
+      }
+    }, 5000);
+
+    fetch(API_URL, {
+      method: "POST",
+      headers: { "Content-Type": "text/plain;charset=utf-8" },
+      body: JSON.stringify(payload),
+      signal: controller.signal
+    })
+    .then(res => res.json())
+    .then(res => {
+      if (!isHandled) {
+        isHandled = true;
+        clearTimeout(timeoutId);
+        callback(res);
+      }
     })
     .catch(err => {
-      sendFallbackData(payload, function() {
-        showMsg(true, "取消請求已成功送出！請刷新頁面確認狀態。");
-        document.getElementById('cancelForm').reset();
-        fetchBookedSlots();
-        cancelBtn.disabled = false;
-        cancelBtn.textContent = '確認取消預約';
-      });
+      if (!isHandled) {
+        isHandled = true;
+        clearTimeout(timeoutId);
+        sendFallbackData(payload, callback);
+      }
     });
   }
 
@@ -535,14 +556,22 @@
     setTimeout(function() {
       document.body.removeChild(form);
       document.body.removeChild(iframe);
-      if (callback) callback();
+      if (callback) callback(null);
     }, 1500);
   }
 
-  function showMsg(isSuccess, text) {
+  function showMsg(type, text) {
     var msgDiv = document.getElementById('msg');
     msgDiv.style.display = 'block';
-    msgDiv.className = isSuccess ? 'success' : 'error';
+    
+    if (type === 'success' || type === true) {
+      msgDiv.className = 'success';
+    } else if (type === 'error' || type === false) {
+      msgDiv.className = 'error';
+    } else {
+      msgDiv.className = 'info';
+    }
+    
     msgDiv.textContent = text;
   }
 
