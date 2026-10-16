@@ -232,7 +232,7 @@
         <input type="text" id="carNumber" required placeholder="例：AB 1234">
       </div>
       <div class="form-group">
-        <label>選擇充電車位：</label>
+        <label>選擇充電車位(2個車位有不同預約時段)：</label>
         <select id="charger" onchange="updateSlots()" required>
           <option value="" disabled selected>-- 請選擇車位 --</option>
           <option value="26號車位">26號車位</option>
@@ -244,7 +244,7 @@
         <select id="dateSelect" onchange="updateSlots()" required></select>
       </div>
       <div class="form-group">
-        <label>可預約之充電時段(2個車位有不同預約時段)：</label>
+        <label>可預約之充電時段：</label>
         <div id="slotGrid" class="slot-grid"></div>
       </div>
       <button type="submit" class="submit-btn" id="submitBtn">確認預約</button>
