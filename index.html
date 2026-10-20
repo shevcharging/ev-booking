@@ -323,15 +323,18 @@
     }
   }
 
+  // 修改：將日期選單設定為從 2026/10/29 開始，並屏蔽先前的日期
   function initCalendar() {
     var dateSelect = document.getElementById('dateSelect');
     var days = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'];
-    var today = new Date();
+    
+    // 將起始日期設定為 2026 年 10 月 29 日 (月份由 0 開始計算，9 即 10 月)
+    var startDate = new Date(2026, 9, 29);
 
     dateSelect.innerHTML = '<option value="" disabled selected>-- 請選擇日期 --</option>';
     for (var i = 0; i < 14; i++) {
-      var d = new Date(today);
-      d.setDate(today.getDate() + i);
+      var d = new Date(startDate);
+      d.setDate(startDate.getDate() + i);
 
       var year = d.getFullYear();
       var month = String(d.getMonth() + 1).padStart(2, '0');
