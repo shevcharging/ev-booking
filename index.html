@@ -198,13 +198,13 @@
     <strong>【使用守則與注意事項】</strong>
     <ol>
       <li>沙田醫院電動車充電服務只供持有有效沙田醫院泊車證，並駕駛電動車之職員使用。</li>
-      <li>使用充電服務前，必須事先於網上預約系統預約。</li>
-      <li>網上預約以先到先得方式處理；預約系統將開放未來14天之時段供職員預約。</li>
+      <li>職員使用充電服務前，必須事先於網上預約系統登記及預約。</li>
+      <li>網上預約以先到先得方式處理；預約系統將開放每天未來14天之時段供職員預約。</li>
       <li>所有預約均以收到確認電郵作實。</li>
-      <li>每人每日只可充電一次；每次充電時間上限為4小時。</li>
+      <li>每部車輛每日只可充電一次；每次充電時間上限為4小時。</li>
       <li>充電完畢，同事必須移除充電線並駛離充電站。</li>
-      <li>未能按預約時間使用充電服務，應至少於預約時段開始前一小時於預約系統取消預約。</li>
-      <li>於60天內累計兩次未有按預約時間到場使用充電服務，其使用沙田醫院電動車充電服務之資格，將由第二次缺席當日起暫停60天。</li>
+      <li>如職員未能按預約時間使用充電服務，應至少於預約時段開始前一小時於預約系統取消預約。</li>
+      <li>如職員於60天內累計兩次未有按預約時間到場使用充電服務，其使用沙田醫院電動車充電服務之資格，將由第二次缺席當日起暫停90天。</li>
       <li>如需協助，請致電沙田醫院管事部 3919 7664。</li>
     </ol>
   </div>
@@ -232,7 +232,7 @@
         <input type="text" id="carNumber" required placeholder="例：AB 1234">
       </div>
       <div class="form-group">
-        <label>選擇充電車位(2個車位有不同預約時段)：</label>
+        <label>選擇充電車位：</label>
         <select id="charger" onchange="updateSlots()" required>
           <option value="" disabled selected>-- 請選擇車位 --</option>
           <option value="26號車位">26號車位</option>
@@ -323,18 +323,16 @@
     }
   }
 
-  // 修改：將日期選單設定為從 2026/10/29 開始，並屏蔽先前的日期
+  // 初始化選單：動態開放從今天開始的未來 14 天
   function initCalendar() {
     var dateSelect = document.getElementById('dateSelect');
     var days = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'];
-    
-    // 將起始日期設定為 2026 年 10 月 29 日 (月份由 0 開始計算，9 即 10 月)
-    var startDate = new Date(2026, 9, 29);
+    var today = new Date();
 
     dateSelect.innerHTML = '<option value="" disabled selected>-- 請選擇日期 --</option>';
     for (var i = 0; i < 14; i++) {
-      var d = new Date(startDate);
-      d.setDate(startDate.getDate() + i);
+      var d = new Date(today);
+      d.setDate(today.getDate() + i);
 
       var year = d.getFullYear();
       var month = String(d.getMonth() + 1).padStart(2, '0');
@@ -459,7 +457,7 @@
           fetchBookedSlots();
         }
       } else {
-        showMsg('success', '預約成功！預約編號為：" + bookingId + "，確認信已發送至您的電郵。');
+        showMsg('success', '預約成功！確認信已發送至您的電郵。');
         document.getElementById('bookingForm').reset();
         fetchBookedSlots();
       }
@@ -500,7 +498,6 @@
     });
   }
 
-  // 帶 5 秒 Timeout 的數據發送核心函式
   function sendRequest(payload, callback) {
     var controller = new AbortController();
     var isHandled = false;
